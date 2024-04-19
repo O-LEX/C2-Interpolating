@@ -22,6 +22,8 @@ class GraphicsEngine:
                 self.scene.destroy()
                 pg.quit()
                 sys.exit()
+            if event.type == pg.MOUSEBUTTONDOWN:
+                self.scene.update()
     
     def render(self):
         self.ctx.clear(color=(0.5, 0.8, 0.8))

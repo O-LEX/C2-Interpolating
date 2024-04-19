@@ -7,11 +7,23 @@ class Line:
     def __init__(self, app):
         self.app = app
         self.ctx = app.ctx
-        self.vbo = self.get_vbo()
+        self.vertex_data = []
         self.shader_program = self.get_shader_program('default')
+
+    def update(self):
+        x, y = pg.mouse.get_pos()
+        x /= self.app.WIN_SIZE[0] / 2
+        y /= self.app.WIN_SIZE[1] / 2
+        y = 2 - y
+        x -= 1
+        y -= 1
+        self.vertex_data.append((x, y))
+        self.vbo = self.get_vbo()
         self.vao = self.get_vao()
 
     def render(self):
+        if not self.vertex_data:
+            return
         self.vao.render(mgl.LINE_LOOP)
         self.vao.render(mgl.POINTS)
     
@@ -26,8 +38,7 @@ class Line:
         return vao
 
     def get_vertex_data(self):
-        vertex_data = [(0,0),(0.5,0),(0.5,0.5),(0,0.5)]
-        vertex_data = np.array(vertex_data, dtype='f4')
+        vertex_data = np.array(self.vertex_data, dtype='f4')
         return vertex_data
     
     def get_vbo(self):
