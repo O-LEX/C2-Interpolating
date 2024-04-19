@@ -13,6 +13,7 @@ class Line:
 
     def render(self):
         self.vao.render(mgl.LINE_LOOP)
+        self.vao.render(mgl.POINTS)
     
     def destroy(self):
         self.vbo.release()

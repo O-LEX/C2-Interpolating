@@ -1,6 +1,6 @@
 import pygame as pg
 import moderngl as mgl
-from drawline import *
+from draw import *
 import sys
 
 class GraphicsEngine:
@@ -13,7 +13,7 @@ class GraphicsEngine:
         pg.display.set_mode(self.WIN_SIZE, flags=pg.OPENGL | pg.DOUBLEBUF)
         pg.mouse.set_visible(True)
         self.ctx = mgl.create_context() 
-        self.ctx.POINTS = True
+        self.ctx.enable(mgl.PROGRAM_POINT_SIZE)
         self.scene = Line(self)
 
     def check_events(self):
