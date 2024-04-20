@@ -1,5 +1,4 @@
 import numpy as np
-import glm
 import pygame as pg
 import moderngl as mgl
 
@@ -7,8 +6,42 @@ class Line:
     def __init__(self, app):
         self.app = app
         self.ctx = app.ctx
+        self.points = []
         self.vertex_data = []
         self.shader_program = self.get_shader_program('default')
+    
+    def lerp(self, a, b, t):
+        return (a[0] * (1 - t) + b[0] * t, a[1] * (1 - t) + b[1] * t)
+
+    def bezier2d(self, points):
+        ret = []
+        i = 0
+        while i < len(points) - 2:
+            p0 = points[i]
+            p1 = points[i + 1]
+            p2 = points[i + 2]
+            for t in np.arange(0, 1, 0.01):
+                p01 = self.lerp(p0, p1, t)
+                p12 = self.lerp(p1, p2, t)
+                p = self.lerp(p01, p12, t)
+                ret.append(p)
+            i += 2
+        while i < len(points):
+            ret.append(points[i])
+            i += 1
+        return ret
+    
+    def update_points(self):
+        if len(self.points) < 3:
+            self.vertex_data = self.points
+            self.vbo = self.get_vbo()
+            self.vao = self.get_vao()
+            self.render()
+            return
+        self.vertex_data = self.bezier2d(self.points)
+        self.vbo = self.get_vbo()
+        self.vao = self.get_vao()
+        self.render()
 
     def update(self):
         x, y = pg.mouse.get_pos()
@@ -17,15 +50,13 @@ class Line:
         y = 2 - y
         x -= 1
         y -= 1
-        self.vertex_data.append((x, y))
-        self.vbo = self.get_vbo()
-        self.vao = self.get_vao()
+        self.points.append((x, y))
+        self.update_points()
 
     def render(self):
         if not self.vertex_data:
             return
-        self.vao.render(mgl.LINE_LOOP)
-        self.vao.render(mgl.POINTS)
+        self.vao.render(mgl.LINE_STRIP)
     
     def destroy(self):
         self.vbo.release()
