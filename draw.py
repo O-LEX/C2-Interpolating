@@ -9,6 +9,15 @@ class Line:
         self.points = []
         self.vertex_data = []
         self.shader_program = self.get_shader_program('default')
+        self.shader_program_points = self.get_shader_program('points')
+
+    def render_points(self):
+        points = np.array(self.points, dtype='f4')
+        vbo = self.ctx.buffer(points)
+        vao = self.ctx.vertex_array(self.shader_program_points,
+                                    [(vbo, '2f', 'in_position')])
+        vao.render(mgl.POINTS)
+
 
     def solveCubic(self, p0, p1, p2):
         a = 0
@@ -46,9 +55,6 @@ class Line:
             for theta in np.linspace(0, np.pi/2, 10):
                 ret.append(spline(theta))
             i += 1
-        while i < len(points):
-            ret.append(points[i])
-            i += 1
         return ret
     
     def lerp(self, a, b, t):
@@ -73,7 +79,7 @@ class Line:
         return ret
     
     def update_points(self):
-        if len(self.points) < 3:
+        if len(self.points) < 4:
             self.vertex_data = self.points
             self.vbo = self.get_vbo()
             self.vao = self.get_vao()
@@ -98,6 +104,7 @@ class Line:
         if not self.vertex_data:
             return
         self.vao.render(mgl.LINE_STRIP)
+        self.render_points()
     
     def destroy(self):
         self.vbo.release()

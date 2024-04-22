@@ -4,7 +4,7 @@ from draw import *
 import sys
 
 class GraphicsEngine:
-    def __init__(self, win_size=(800, 450)):
+    def __init__(self, win_size=(1200, 800)):
         pg.init()
         self.WIN_SIZE = win_size
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION, 3)
