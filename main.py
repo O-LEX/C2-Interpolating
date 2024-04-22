@@ -4,9 +4,10 @@ from draw import *
 import sys
 
 class GraphicsEngine:
-    def __init__(self, win_size=(1200, 800)):
+    def __init__(self, mode, win_size=(1200, 800)):
         pg.init()
         self.WIN_SIZE = win_size
+        self.mode = mode
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION, 3)
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MINOR_VERSION, 3)
         pg.display.gl_set_attribute(pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE)
@@ -40,5 +41,5 @@ class GraphicsEngine:
             self.render()
 
 if __name__ == '__main__':
-    app = GraphicsEngine()
+    app = GraphicsEngine(mode='C2') # mode='bezier' or mode='C2'
     app.run()

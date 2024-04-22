@@ -10,6 +10,7 @@ class Line:
         self.vertex_data = []
         self.shader_program = self.get_shader_program('default')
         self.shader_program_points = self.get_shader_program('points')
+        self.mode = app.mode
 
     def render_points(self):
         points = np.array(self.points, dtype='f4')
@@ -44,9 +45,7 @@ class Line:
             t1 = self.solveCubic(p1, p2, p3)
             b0 = (p1-(1-t0)**2*p0-t0**2*p2)/(2*t0*(1-t0))
             b1 = (p2-(1-t1)**2*p1-t1**2*p3)/(2*t1*(1-t1))
-            # bezier_curve = lambda t: (1 - t) ** 2 * p0 + 2 * (1 - t) * t * b0 + t ** 2 * p2
-            # for t in np.linspace(0, 1, 10):
-            #     ret.append(bezier_curve(t))
+            # maybe wrong
             ratio0 = np.pi/2 / (1 - t0)
             f0 = lambda theta : (1 - (theta / ratio0 + t0)) ** 2 * p0 + 2 * (theta / ratio0 + t0) * (1 - (theta / ratio0 + t0)) * b0 + (theta / ratio0 + t0) ** 2 * p2
             ratio1 = np.pi/2 / t1
@@ -55,6 +54,9 @@ class Line:
             for theta in np.linspace(0, np.pi/2, 10):
                 ret.append(spline(theta))
             i += 1
+        bezier_curve = lambda t: (1 - t) ** 2 * p1 + 2 * (1 - t) * t * b1 + t ** 2 * p3
+        for t in np.linspace(t1, 1, 10):
+            ret.append(bezier_curve(t))
         return ret
     
     def lerp(self, a, b, t):
@@ -79,13 +81,20 @@ class Line:
         return ret
     
     def update_points(self):
-        if len(self.points) < 4:
+        if self.mode == 'bezier':
+            temp = 3
+        else:
+            temp = 4
+        if len(self.points) < temp:
             self.vertex_data = self.points
             self.vbo = self.get_vbo()
             self.vao = self.get_vao()
             self.render()
             return
-        self.vertex_data = self.C2(self.points)
+        if self.mode == 'bezier':
+            self.vertex_data = self.bezier2d(self.points)
+        else:
+            self.vertex_data = self.C2(self.points)
         self.vbo = self.get_vbo()
         self.vao = self.get_vao()
         self.render()
