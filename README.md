@@ -12,5 +12,5 @@ bezierにおいて0<t<1であるが、必要なのは0<theta<piであるよう�
 # 引用及びGPT等
 次のyoutube動画を参考にしています  
 Let's code 3D Engine in Python. OpenGL Pygame Tutorial  
-引用:A Class of C2 Interpolating Splines  
+参考:A Class of C2 Interpolating Splines  
 copilotを利用しています  
