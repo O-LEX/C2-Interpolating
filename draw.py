@@ -9,6 +9,47 @@ class Line:
         self.points = []
         self.vertex_data = []
         self.shader_program = self.get_shader_program('default')
+
+    def solveCubic(self, p0, p1, p2):
+        a = 0
+        b = 1
+        cubic_func = lambda t : np.dot((p2-p0),(p2-p0))*t**3 + 3*np.dot((p2-p0),(p0-p1))*t**2+\
+            np.dot((3*p0-2*p1-p2),(p0-p1))*t - np.dot((p0-p1),(p0-p1))
+        for i in range(100):
+            c = (a + b) / 2
+            if cubic_func(c) < 0:
+                a = c
+            else:
+                b = c
+        return a
+
+    def C2(self, points):
+        ret = []
+        i = 0
+        while i < len(points) - 3:
+            p0 = np.array(points[i])
+            p1 = np.array(points[i + 1])
+            p2 = np.array(points[i + 2])
+            p3 = np.array(points[i + 3])
+            t0 = self.solveCubic(p0, p1, p2)
+            t1 = self.solveCubic(p1, p2, p3)
+            b0 = (p1-(1-t0)**2*p0-t0**2*p2)/(2*t0*(1-t0))
+            b1 = (p2-(1-t1)**2*p1-t1**2*p3)/(2*t1*(1-t1))
+            # bezier_curve = lambda t: (1 - t) ** 2 * p0 + 2 * (1 - t) * t * b0 + t ** 2 * p2
+            # for t in np.linspace(0, 1, 10):
+            #     ret.append(bezier_curve(t))
+            ratio0 = np.pi/2 / (1 - t0)
+            f0 = lambda theta : (1 - (theta / ratio0 + t0)) ** 2 * p0 + 2 * (theta / ratio0 + t0) * (1 - (theta / ratio0 + t0)) * b0 + (theta / ratio0 + t0) ** 2 * p2
+            ratio1 = np.pi/2 / t1
+            f1 = lambda theta : (1 - theta / ratio1) ** 2 * p1 + 2 * (theta / ratio1) * (1 - theta / ratio1) * b1 + (theta / ratio1) ** 2 * p3
+            spline = lambda theta : (np.cos(theta)**2)*f0(theta) + (np.sin(theta))**2*f1(theta)
+            for theta in np.linspace(0, np.pi/2, 10):
+                ret.append(spline(theta))
+            i += 1
+        while i < len(points):
+            ret.append(points[i])
+            i += 1
+        return ret
     
     def lerp(self, a, b, t):
         return (a[0] * (1 - t) + b[0] * t, a[1] * (1 - t) + b[1] * t)
@@ -38,7 +79,7 @@ class Line:
             self.vao = self.get_vao()
             self.render()
             return
-        self.vertex_data = self.bezier2d(self.points)
+        self.vertex_data = self.C2(self.points)
         self.vbo = self.get_vbo()
         self.vao = self.get_vao()
         self.render()
